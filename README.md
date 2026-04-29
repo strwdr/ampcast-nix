@@ -1,6 +1,7 @@
 # ampcast-nix
 
-Nix flake for [Ampcast](https://github.com/rekkyrosso/ampcast).
+Nix flake for [Ampcast](https://github.com/rekkyrosso/ampcast), an Electron
+music player for streaming services and personal media servers.
 
 Patches upstream to drop the auto-updater and the castlabs Widevine init,
 inline `electron-audio-loopback` (its peer dep breaks offline `npm ci`),
@@ -10,7 +11,16 @@ and use the system `electron`.
 nix run github:strwdr/ampcast-nix
 ```
 
-Linux only (`x86_64`, `aarch64`).
+As a flake input:
 
-When bumping `version` in `default.nix`, the three hashes (`src`, `appDeps`,
-`npmDepsHash`) need to be refreshed in that order from build failures.
+```nix
+{
+  inputs.ampcast.url = "github:strwdr/ampcast-nix";
+  inputs.ampcast.inputs.nixpkgs.follows = "nixpkgs";
+
+  outputs = { nixpkgs, ampcast, ... }: {
+    # environment.systemPackages = [ ampcast.packages.${system}.default ];
+    # or via overlay: nixpkgs.overlays = [ ampcast.overlays.default ];
+  };
+}
+```
