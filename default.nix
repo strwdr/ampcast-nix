@@ -16,9 +16,6 @@ let
 
   electron = pkgs.electron;
 
-  # electron-audio-loopback declares `peer electron@>=31`, which breaks our
-  # offline npm-ci (resolution attempts a registry lookup). Inline its
-  # implementation instead.
   loopbackStub = pkgs.writeText "loopback-stub.js" ''
     import {ipcMain, session, desktopCapturer} from 'electron';
 
@@ -35,16 +32,12 @@ let
     }
   '';
 
-  # Runtime deps we strip from the install graph entirely. main.js's imports
-  # of these are patched out in postPatch.
   removedDeps = [
     "electron-audio-loopback"
     "electron-updater"
     "electron-log"
   ];
 
-  # Drop dev tooling, the castlabs `electron` peer entry, and `removedDeps`
-  # from app/{package,package-lock}.json before fetchNpmDeps reads them.
   appSrc = pkgs.runCommand "${pname}-app-src" { } ''
     cp -r ${src}/app $out
     chmod -R u+w $out
@@ -109,10 +102,6 @@ pkgs.buildNpmPackage rec {
     })
   ];
 
-  # Patches: swap electron-audio-loopback for the in-tree stub, drop the
-  # castlabs-only `components` (Widevine init) import + call, strip the
-  # auto-updater. The function body of checkForUpdatesAndNotify is left as
-  # dead code — the only call site is removed.
   postPatch = ''
     cp ${loopbackStub} app/src/loopback-stub.js
     substituteInPlace app/src/main.js \
@@ -123,9 +112,11 @@ pkgs.buildNpmPackage rec {
       --replace-fail "import electronUpdater from 'electron-updater';" "" \
       --replace-fail "import log from 'electron-log';" "" \
       --replace-fail "const {autoUpdater} = electronUpdater;" "" \
-      --replace-fail "await checkForUpdatesAndNotify();" ""
+      --replace-fail "await checkForUpdatesAndNotify();" "" \
+      --replace-fail "    app.quit();
+}" "    app.exit(0);
+}"
 
-    # Extend the bundled Google Fonts list (alphabetically merged in place).
     substituteInPlace src/services/theme/fonts.ts \
       --replace-fail "    googleFont('Albert Sans'),
     {name: 'Arial', value: 'Arial,sans-serif'},
