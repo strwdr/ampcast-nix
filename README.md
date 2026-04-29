@@ -5,7 +5,9 @@ music player for streaming services and personal media servers.
 
 Patches upstream to drop the auto-updater and the castlabs Widevine init,
 inline `electron-audio-loopback` (its peer dep breaks offline `npm ci`),
-and use the system `electron`.
+and use the system `electron`. I also wanted nicer fonts than what ships
+by default, so the bundled Google Fonts list is extended by string-patching
+`src/services/theme/fonts.ts`. Ugly, but it works.
 
 ```sh
 nix run github:strwdr/ampcast-nix
