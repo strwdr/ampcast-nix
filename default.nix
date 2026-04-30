@@ -239,7 +239,8 @@ pkgs.buildNpmPackage rec {
       --add-flags "--ozone-platform-hint=auto" \
       --add-flags "--no-sandbox" \
       --add-flags "--class=ampcast" \
-      --set NODE_ENV production
+      --set NODE_ENV production \
+      --set CHROME_DESKTOP ampcast.desktop
   '';
 
   meta = {
