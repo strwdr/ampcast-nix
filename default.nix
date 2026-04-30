@@ -238,6 +238,7 @@ pkgs.buildNpmPackage rec {
       --add-flags "$out/share/ampcast" \
       --add-flags "--ozone-platform-hint=auto" \
       --add-flags "--no-sandbox" \
+      --add-flags "--class=ampcast" \
       --set NODE_ENV production
   '';
 
