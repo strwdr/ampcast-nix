@@ -115,7 +115,9 @@ pkgs.buildNpmPackage rec {
       --replace-fail "await checkForUpdatesAndNotify();" "" \
       --replace-fail "    app.quit();
 }" "    app.exit(0);
-}"
+}" \
+      --replace-fail "unhandled();" "app.setName('ampcast');
+unhandled();"
 
     substituteInPlace src/services/theme/fonts.ts \
       --replace-fail "    googleFont('Albert Sans'),
