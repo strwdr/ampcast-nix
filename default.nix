@@ -47,6 +47,7 @@ let
     ${pkgs.jq}/bin/jq --argjson rm "$rm" '
       .dependencies |= with_entries(select(.key as $k | $rm | index($k) | not))
       | del(.devDependencies)
+      | .desktopName = "ampcast.desktop"
     ' $out/package.json > $out/package.json.new
     mv $out/package.json.new $out/package.json
 
@@ -115,9 +116,7 @@ pkgs.buildNpmPackage rec {
       --replace-fail "await checkForUpdatesAndNotify();" "" \
       --replace-fail "    app.quit();
 }" "    app.exit(0);
-}" \
-      --replace-fail "unhandled();" "app.setName('ampcast');
-unhandled();"
+}"
 
     substituteInPlace src/services/theme/fonts.ts \
       --replace-fail "    googleFont('Albert Sans'),
@@ -241,8 +240,7 @@ unhandled();"
       --add-flags "--ozone-platform-hint=auto" \
       --add-flags "--no-sandbox" \
       --add-flags "--class=ampcast" \
-      --set NODE_ENV production \
-      --set CHROME_DESKTOP ampcast.desktop
+      --set NODE_ENV production
   '';
 
   meta = {
